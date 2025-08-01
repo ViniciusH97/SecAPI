@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Auditoria Completa - SecREST</title>
+  <meta name="description" content="Formulário de levantamento para auditoria de segurança em APIs RESTful" />
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="logo.png?v=2025">
+  <link rel="shortcut icon" type="image/png" href="logo.png?v=2025">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+    
+    .font-mono { font-family: 'Fira Code', monospace; }
+    .font-sans { font-family: 'Inter', sans-serif; }
+    
+    .matrix-bg {
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .matrix-bg::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: 
+        radial-gradient(circle at 20% 80%, rgba(0, 255, 0, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(0, 255, 0, 0.05) 0%, transparent 50%);
+      z-index: 0;
+      animation: pulse-bg 4s ease-in-out infinite alternate;
+    }
+    
+    @keyframes pulse-bg {
+      0% { opacity: 0.7; }
+      100% { opacity: 1; }
+    }
+    
+    .text-matrix { 
+      color: #00ff00; 
+      text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+    }
+    .border-matrix { border-color: #00ff00; }
+    
+    .form-section {
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+    
+    .form-section:hover {
+      border-color: #00ff00;
+      box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
+    }
+    
+    .form-input {
+      background: #161b22;
+      border: 1px solid #30363d;
+      color: #e6edf3;
+      padding: 0.75rem;
+      border-radius: 6px;
+      font-family: 'Fira Code', monospace;
+      transition: all 0.3s ease;
+    }
+    
+    .form-input:focus {
+      outline: none;
+      border-color: #00ff00;
+      box-shadow: 0 0 0 3px rgba(0, 255, 0, 0.1);
+    }
+    
+    .form-label {
+      color: #f0f6fc;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      display: block;
+      font-family: 'Fira Code', monospace;
+    }
+    
+    .checkbox-custom {
+      appearance: none;
+      width: 1.25rem;
+      height: 1.25rem;
+      border: 2px solid #30363d;
+      border-radius: 3px;
+      background: #161b22;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.3s ease;
+    }
+    
+    .checkbox-custom:checked {
+      background: #00ff00;
+      border-color: #00ff00;
+    }
+    
+    .checkbox-custom:checked::after {
+      content: '✓';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: #000;
+      font-weight: bold;
+      font-size: 0.875rem;
+    }
+    
+    .fade-in-up {
+      opacity: 0;
+      transform: translateY(30px);
+      animation: fadeInUp 0.8s ease forwards;
+    }
+    
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .terminal-cursor {
+      animation: blink 1s infinite;
+    }
+    
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
+    
+    .hover-glow:hover {
+      box-shadow: 0 0 30px rgba(0, 255, 0, 0.4);
+      transform: translateY(-2px);
+      transition: all 0.3s ease;
+    }
+    
+    .scale-on-hover {
+      transition: transform 0.3s ease;
+    }
+    
+    .scale-on-hover:hover {
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body class="font-sans bg-black text-gray-100 min-h-screen">
+
+  <!-- Header -->
+  <header class="p-4 border-b border-gray-800 flex justify-between items-center bg-black/90 backdrop-blur-sm sticky top-0 z-50">
+    <div class="flex items-center space-x-3">
+      <img src="logo.png" alt="SecREST Logo" class="w-10 h-10 object-contain">
+      <div class="text-2xl font-bold text-matrix font-mono select-none cursor-default">SecREST</div>
+      <span class="terminal-cursor text-matrix">_</span>
+    </div>
+    <div class="flex items-center space-x-4">
+      <a href="index.html" class="inline-flex items-center space-x-2 bg-gradient-to-r from-gray-700 to-gray-800 text-gray-300 px-4 py-2 rounded font-bold hover:from-gray-600 hover:to-gray-700 transition-all transform hover:scale-105 font-mono text-sm scale-on-hover">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+        </svg>
+        <span>VOLTAR</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="matrix-bg relative z-10 min-h-screen py-12 px-4">
+    <div class="max-w-4xl mx-auto">
+      <!-- Header do Formulário -->
+      <div class="text-center mb-12 fade-in-up">
+        <div class="font-mono text-matrix text-sm mb-4">
+          <span class="opacity-60">root@secrest:~$</span> ./audit_request_form.sh
+        </div>
+        <h1 class="text-4xl md:text-5xl font-bold mb-6 leading-tight">
+          <span class="text-white">Formulário de</span> <span class="text-matrix font-mono">[AUDITORIA_COMPLETA]</span>
+        </h1>
+        <p class="text-lg text-gray-300 max-w-2xl mx-auto">
+          Levantamento detalhado para auditoria de segurança em APIs RESTful
+        </p>
+      </div>
+
+      <!-- Formulário -->
+      <form id="audit-form" class="space-y-8">
+        
+        <!-- 1. Informações Gerais da API -->
+        <div class="form-section fade-in-up" style="animation-delay: 0.1s">
+          <h2 class="text-2xl font-bold text-matrix mb-6 font-mono">
+            <span class="text-gray-500"># 1.</span> Informações Gerais da API
+          </h2>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="form-label">Nome da API *</label>
+              <input type="text" name="api_name" class="form-input w-full" placeholder="Ex: MyAPI v2.0" required>
+            </div>
+            
+            <div>
+              <label class="form-label">Propósito funcional da API *</label>
+              <input type="text" name="api_purpose" class="form-input w-full" placeholder="Ex: E-commerce, Pagamentos, CRM" required>
+            </div>
+          </div>
+          
+          <div class="mt-6">
+            <label class="form-label">Responsável técnico (nome, e-mail, telefone) *</label>
+            <textarea name="technical_responsible" class="form-input w-full h-24" placeholder="Nome: João Silva&#10;E-mail: joao@empresa.com&#10;Telefone: (11) 99999-9999" required></textarea>
+          </div>
+          
+          <div class="mt-6">
+            <label class="form-label">Ambiente auditado *</label>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
+              <label class="flex items-center space-x-2 cursor-pointer">
+                <input type="checkbox" name="environment[]" value="producao" class="checkbox-custom">
+                <span class="text-sm">Produção</span>
+              </label>
+              <label class="flex items-center space-x-2 cursor-pointer">
+                <input type="checkbox" name="environment[]" value="homologacao" class="checkbox-custom">
+                <span class="text-sm">Homologação</span>
+              </label>
+              <label class="flex items-center space-x-2 cursor-pointer">
+                <input type="checkbox" name="environment[]" value="desenvolvimento" class="checkbox-custom">
+                <span class="text-sm">Desenvolvimento</span>
+              </label>
+              <label class="flex items-center space-x-2 cursor-pointer">
+                <input type="checkbox" name="environment[]" value="localhost" class="checkbox-custom">
+                <span class="text-sm">Localhost</span>
+              </label>
+            </div>
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+            <div>
+              <label class="form-label">Link da documentação (Swagger/OpenAPI)</label>
+              <input type="url" name="documentation_url" class="form-input w-full" placeholder="https://api.exemplo.com/docs">
+            </div>
+            
+            <div>
+              <label class="form-label">Contrato de SLA existente?</label>
+              <select name="sla_contract" class="form-input w-full">
+                <option value="">Selecione...</option>
+                <option value="sim">Sim</option>
+                <option value="nao">Não</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="mt-6">
+            <label class="form-label">Limitações de tempo/janela para testes</label>
+            <textarea name="time_limitations" class="form-input w-full h-20" placeholder="Ex: Testes apenas aos finais de semana, entre 20h e 6h"></textarea>
+          </div>
+        </div>
+
+        <!-- 2. Informações Técnicas da API -->
+        <div class="form-section fade-in-up" style="animation-delay: 0.2s">
+          <h2 class="text-2xl font-bold text-matrix mb-6 font-mono">
+            <span class="text-gray-500"># 2.</span> Informações Técnicas da API
+          </h2>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="form-label">Endpoint base da API (URL) *</label>
+              <input type="url" name="base_endpoint" class="form-input w-full" placeholder="https://api.exemplo.com" required>
+            </div>
+            
+            <div>
+              <label class="form-label">Versionamento</label>
+              <input type="text" name="versioning" class="form-input w-full" placeholder="Ex: /api/v1, /v2">
+            </div>
+          </div>
+          
+          <div class="mt-6">
+            <label class="form-label">Métodos HTTP utilizados *</label>
+            <div class="grid grid-cols-3 md:grid-cols-6 gap-4 mt-2">
+              <label class="flex items-center space-x-2 cursor-pointer">
+                <input type="checkbox" name="http_methods[]" value="GET" class="checkbox-custom">
+                <span class="text-sm">GET</span>
+              </label>
+              <label class="flex items-center space-x-2 cursor-pointer">
+                <input type="checkbox" name="http_methods[]" value="POST" class="checkbox-custom">
+                <span class="text-sm">POST</span>
+              </label>
+              <label class="flex items-center space-x-2 cursor-pointer">
+                <input type="checkbox" name="http_methods[]" value="PUT" class="checkbox-custom">
+                <span class="text-sm">PUT</span>
+              </label>
+              <label class="flex items-center space-x-2 cursor-pointer">
+                <input type="checkbox" name="http_methods[]" value="PATCH" class="checkbox-custom">
+                <span class="text-sm">PATCH</span>
+              </label>
+              <label class="flex items-center space-x-2 cursor-pointer">
+                <input type="checkbox" name="http_methods[]" value="DELETE" class="checkbox-custom">
+                <span class="text-sm">DELETE</span>
+              </label>
+              <label class="flex items-center space-x-2 cursor-pointer">
+                <input type="checkbox" name="http_methods[]" value="OPTIONS" class="checkbox-custom">
+                <span class="text-sm">OPTIONS</span>
+              </label>
+            </div>
+          </div>
+          
+          <div class="mt-6">
+            <label class="form-label">Recursos expostos *</label>
+            <textarea name="exposed_resources" class="form-input w-full h-24" placeholder="Ex: /users, /login, /transactions, /orders, /products" required></textarea>
+          </div>
+          
+          <div class="mt-6">
+            <label class="form-label">Tipo de payload aceito *</label>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
+              <label class="flex items-center space-x-2 cursor-pointer">
+                <input type="checkbox" name="payload_types[]" value="JSON" class="checkbox-custom">
+                <span class="text-sm">JSON</span>
+              </label>
+              <label class="flex items-center space-x-2 cursor-pointer">
+                <input type="checkbox" name="payload_types[]" value="XML" class="checkbox-custom">
+                <span class="text-sm">XML</span>
+              </label>
+              <label class="flex items-center space-x-2 cursor-pointer">
+                <input type="checkbox" name="payload_types[]" value="FormData" class="checkbox-custom">
+                <span class="text-sm">FormData</span>
+              </label>
+              <label class="flex items-center space-x-2 cursor-pointer">
+                <input type="checkbox" name="payload_types[]" value="outros" class="checkbox-custom">
+                <span class="text-sm">Outros</span>
+              </label>
+            </div>
+            <input type="text" name="other_payload" class="form-input w-full mt-2" placeholder="Especificar outros tipos...">
+          </div>
+          
+          <div class="mt-6">
+            <label class="form-label">Servidor/Plataforma de hospedagem</label>
+            <input type="text" name="hosting_platform" class="form-input w-full" placeholder="Ex: Apache, Nginx, AWS API Gateway, Azure API Management">
+          </div>
+        </div>
+
+        <!-- 3. Autenticação e Autorização -->
+        <div class="form-section fade-in-up" style="animation-delay: 0.3s">
+          <h2 class="text-2xl font-bold text-matrix mb-6 font-mono">
+            <span class="text-gray-500"># 3.</span> Autenticação e Autorização
+          </h2>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="form-label">A API exige autenticação? *</label>
+              <select name="requires_auth" class="form-input w-full" required>
+                <option value="">Selecione...</option>
+                <option value="sim">Sim</option>
+                <option value="nao">Não</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="mt-6">
+            <label class="form-label">Tipo de autenticação</label>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+              <label class="flex items-center space-x-2 cursor-pointer">
+                <input type="checkbox" name="auth_types[]" value="basic_auth" class="checkbox-custom">
+                <span class="text-sm">Basic Auth</span>
+              </label>
+              <label class="flex items-center space-x-2 cursor-pointer">
+                <input type="checkbox" name="auth_types[]" value="bearer_token" class="checkbox-custom">
+                <span class="text-sm">Bearer Token (JWT)</span>
+              </label>
+              <label class="flex items-center space-x-2 cursor-pointer">
+                <input type="checkbox" name="auth_types[]" value="oauth2" class="checkbox-custom">
+                <span class="text-sm">OAuth 2.0</span>
+              </label>
+              <label class="flex items-center space-x-2 cursor-pointer">
+                <input type="checkbox" name="auth_types[]" value="api_key" class="checkbox-custom">
+                <span class="text-sm">API Key</span>
+              </label>
+              <label class="flex items-center space-x-2 cursor-pointer">
+                <input type="checkbox" name="auth_types[]" value="session_cookie" class="checkbox-custom">
+                <span class="text-sm">Sessão/Cookie</span>
+              </label>
+              <label class="flex items-center space-x-2 cursor-pointer">
+                <input type="checkbox" name="auth_types[]" value="outros" class="checkbox-custom">
+                <span class="text-sm">Outros</span>
+              </label>
+            </div>
+            <input type="text" name="other_auth" class="form-input w-full mt-2" placeholder="Especificar outros tipos de autenticação...">
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+            <div>
+              <label class="form-label">Como o token é obtido?</label>
+              <input type="text" name="token_acquisition" class="form-input w-full" placeholder="Ex: POST /auth/login">
+            </div>
+            
+            <div>
+              <label class="form-label">Tempo de expiração do token</label>
+              <input type="text" name="token_expiration" class="form-input w-full" placeholder="Ex: 30 minutos, 1 hora, 24 horas">
+            </div>
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+            <div>
+              <label class="form-label">Existe refresh token?</label>
+              <select name="refresh_token" class="form-input w-full">
+                <option value="">Selecione...</option>
+                <option value="sim">Sim</option>
+                <option value="nao">Não</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="mt-6">
+            <label class="form-label">Sistema de validação de permissões</label>
+            <textarea name="permission_system" class="form-input w-full h-20" placeholder="Ex: RBAC (Role-Based Access Control), ACLs, grupos de usuários"></textarea>
+          </div>
+          
+          <div class="mt-6">
+            <label class="form-label">Níveis de usuários existentes</label>
+            <textarea name="user_levels" class="form-input w-full h-20" placeholder="Ex: Admin, User, Guest, Manager, etc."></textarea>
+          </div>
+        </div>
+
+        <!-- 4. Validação de Dados -->
+        <div class="form-section fade-in-up" style="animation-delay: 0.4s">
+          <h2 class="text-2xl font-bold text-matrix mb-6 font-mono">
+            <span class="text-gray-500"># 4.</span> Validação de Dados
+          </h2>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="form-label">A API realiza validação server-side? *</label>
+              <select name="server_validation" class="form-input w-full" required>
+                <option value="">Selecione...</option>
+                <option value="sim">Sim</option>
+                <option value="nao">Não</option>
+                <option value="parcial">Parcial</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="mt-6">
+            <label class="form-label">Tipos de validação implementados</label>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+              <label class="flex items-center space-x-2 cursor-pointer">
+                <input type="checkbox" name="validation_types[]" value="tipo" class="checkbox-custom">
+                <span class="text-sm">Tipo (string, number, etc)</span>
+              </label>
+              <label class="flex items-center space-x-2 cursor-pointer">
+                <input type="checkbox" name="validation_types[]" value="tamanho" class="checkbox-custom">
+                <span class="text-sm">Tamanho</span>
+              </label>
+              <label class="flex items-center space-x-2 cursor-pointer">
+                <input type="checkbox" name="validation_types[]" value="regex" class="checkbox-custom">
+                <span class="text-sm">Regex/formato</span>
+              </label>
+              <label class="flex items-center space-x-2 cursor-pointer">
+                <input type="checkbox" name="validation_types[]" value="obrigatorios" class="checkbox-custom">
+                <span class="text-sm">Campos obrigatórios</span>
+              </label>
+            </div>
+          </div>
+          
+          <div class="mt-6">
+            <label class="form-label">Existe sanitização dos dados?</label>
+            <select name="data_sanitization" class="form-input w-full">
+              <option value="">Selecione...</option>
+              <option value="sim">Sim</option>
+              <option value="nao">Não</option>
+              <option value="nao_sei">Não sei</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 5. Segurança de Transporte -->
+        <div class="form-section fade-in-up" style="animation-delay: 0.5s">
+          <h2 class="text-2xl font-bold text-matrix mb-6 font-mono">
+            <span class="text-gray-500"># 5.</span> Segurança de Transporte
+          </h2>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="form-label">A API utiliza HTTPS (TLS 1.2+)? *</label>
+              <select name="uses_https" class="form-input w-full" required>
+                <option value="">Selecione...</option>
+                <option value="sim">Sim</option>
+                <option value="nao">Não</option>
+                <option value="parcial">Alguns endpoints</option>
+              </select>
+            </div>
+            
+            <div>
+              <label class="form-label">Certificado válido?</label>
+              <select name="valid_certificate" class="form-input w-full">
+                <option value="">Selecione...</option>
+                <option value="sim">Sim</option>
+                <option value="autoassinado">Autoassinado</option>
+                <option value="expirado">Expirado</option>
+                <option value="invalido">Inválido</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="mt-6">
+            <label class="form-label">Algum endpoint exposto via HTTP puro?</label>
+            <textarea name="http_endpoints" class="form-input w-full h-20" placeholder="Liste os endpoints (se houver) que usam HTTP sem SSL"></textarea>
+          </div>
+        </div>
+
+        <!-- 6. Controle de Erros e Logs -->
+        <div class="form-section fade-in-up" style="animation-delay: 0.6s">
+          <h2 class="text-2xl font-bold text-matrix mb-6 font-mono">
+            <span class="text-gray-500"># 6.</span> Controle de Erros e Logs
+          </h2>
+          
+          <div class="mt-6">
+            <label class="form-label">Mensagens de erro expõem informações sensíveis?</label>
+            <select name="error_exposure" class="form-input w-full">
+              <option value="">Selecione...</option>
+              <option value="sim">Sim</option>
+              <option value="nao">Não</option>
+              <option value="nao_sei">Não sei</option>
+            </select>
+          </div>
+          
+          <div class="mt-6">
+            <label class="form-label">Como os logs são armazenados?</label>
+            <textarea name="log_storage" class="form-input w-full h-20" placeholder="Ex: Arquivo local, ElasticSearch, CloudWatch, etc."></textarea>
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+            <div>
+              <label class="form-label">Controle de log para requisições suspeitas?</label>
+              <select name="suspicious_log" class="form-input w-full">
+                <option value="">Selecione...</option>
+                <option value="sim">Sim</option>
+                <option value="nao">Não</option>
+                <option value="nao_sei">Não sei</option>
+              </select>
+            </div>
+            
+            <div>
+              <label class="form-label">Correlação entre logs da API e sistema?</label>
+              <select name="log_correlation" class="form-input w-full">
+                <option value="">Selecione...</option>
+                <option value="sim">Sim</option>
+                <option value="nao">Não</option>
+                <option value="nao_sei">Não sei</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- 7. Rate Limiting e Proteção -->
+        <div class="form-section fade-in-up" style="animation-delay: 0.7s">
+          <h2 class="text-2xl font-bold text-matrix mb-6 font-mono">
+            <span class="text-gray-500"># 7.</span> Rate Limiting e Proteção Contra Abusos
+          </h2>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="form-label">Existe rate limiting?</label>
+              <select name="rate_limiting" class="form-input w-full">
+                <option value="">Selecione...</option>
+                <option value="sim">Sim</option>
+                <option value="nao">Não</option>
+                <option value="nao_sei">Não sei</option>
+              </select>
+            </div>
+            
+            <div>
+              <label class="form-label">Proteção contra brute force?</label>
+              <select name="brute_force_protection" class="form-input w-full">
+                <option value="">Selecione...</option>
+                <option value="sim">Sim</option>
+                <option value="nao">Não</option>
+                <option value="nao_sei">Não sei</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="mt-6">
+            <label class="form-label">WAF (Web Application Firewall) em uso?</label>
+            <input type="text" name="waf_details" class="form-input w-full" placeholder="Ex: CloudFlare, AWS WAF, F5, Não possui">
+          </div>
+        </div>
+
+        <!-- 8. Ciclo de Vida e Gestão -->
+        <div class="form-section fade-in-up" style="animation-delay: 0.8s">
+          <h2 class="text-2xl font-bold text-matrix mb-6 font-mono">
+            <span class="text-gray-500"># 8.</span> Ciclo de Vida e Gestão de APIs
+          </h2>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="form-label">Endpoints obsoletos ainda acessíveis?</label>
+              <select name="obsolete_endpoints" class="form-input w-full">
+                <option value="">Selecione...</option>
+                <option value="sim">Sim</option>
+                <option value="nao">Não</option>
+                <option value="nao_sei">Não sei</option>
+              </select>
+            </div>
+            
+            <div>
+              <label class="form-label">Controle de versionamento seguro?</label>
+              <select name="version_control" class="form-input w-full">
+                <option value="">Selecione...</option>
+                <option value="sim">Sim</option>
+                <option value="nao">Não</option>
+                <option value="nao_sei">Não sei</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="mt-6">
+            <label class="form-label">Controle de exposição pública de endpoints</label>
+            <textarea name="endpoint_exposure" class="form-input w-full h-20" placeholder="Descreva quais endpoints são públicos e quais são internos"></textarea>
+          </div>
+        </div>
+
+        <!-- 9. Testes e Monitoramento -->
+        <div class="form-section fade-in-up" style="animation-delay: 0.9s">
+          <h2 class="text-2xl font-bold text-matrix mb-6 font-mono">
+            <span class="text-gray-500"># 9.</span> Testes e Monitoramento
+          </h2>
+          
+          <div class="mt-6">
+            <label class="form-label">A API é testada regularmente?</label>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
+              <label class="flex items-center space-x-2 cursor-pointer">
+                <input type="checkbox" name="testing_frequency[]" value="manual" class="checkbox-custom">
+                <span class="text-sm">Sim, manualmente</span>
+              </label>
+              <label class="flex items-center space-x-2 cursor-pointer">
+                <input type="checkbox" name="testing_frequency[]" value="automatizado" class="checkbox-custom">
+                <span class="text-sm">Sim, automatizado</span>
+              </label>
+              <label class="flex items-center space-x-2 cursor-pointer">
+                <input type="checkbox" name="testing_frequency[]" value="nao" class="checkbox-custom">
+                <span class="text-sm">Não</span>
+              </label>
+            </div>
+          </div>
+          
+          <div class="mt-6">
+            <label class="form-label">Testes de segurança realizados</label>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
+              <label class="flex items-center space-x-2 cursor-pointer">
+                <input type="checkbox" name="security_tests[]" value="SAST" class="checkbox-custom">
+                <span class="text-sm">SAST</span>
+              </label>
+              <label class="flex items-center space-x-2 cursor-pointer">
+                <input type="checkbox" name="security_tests[]" value="DAST" class="checkbox-custom">
+                <span class="text-sm">DAST</span>
+              </label>
+              <label class="flex items-center space-x-2 cursor-pointer">
+                <input type="checkbox" name="security_tests[]" value="IAST" class="checkbox-custom">
+                <span class="text-sm">IAST</span>
+              </label>
+            </div>
+          </div>
+          
+          <div class="mt-6">
+            <label class="form-label">Monitoramento de falhas em tempo real?</label>
+            <select name="real_time_monitoring" class="form-input w-full">
+              <option value="">Selecione...</option>
+              <option value="sim">Sim</option>
+              <option value="nao">Não</option>
+              <option value="parcial">Parcial</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 10. Informações Complementares -->
+        <div class="form-section fade-in-up" style="animation-delay: 1.0s">
+          <h2 class="text-2xl font-bold text-matrix mb-6 font-mono">
+            <span class="text-gray-500"># 10.</span> Informações Complementares
+          </h2>
+          
+          <div class="mt-6">
+            <label class="form-label">Auditorias anteriores</label>
+            <textarea name="previous_audits" class="form-input w-full h-20" placeholder="Descreva auditorias anteriores, quando foram feitas e resultados"></textarea>
+          </div>
+          
+          <div class="mt-6">
+            <label class="form-label">Bibliotecas, SDKs ou componentes externos</label>
+            <textarea name="external_components" class="form-input w-full h-20" placeholder="Ex: Stripe SDK, Firebase, Auth0, etc."></textarea>
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+            <div>
+              <label class="form-label">Controle de CORS configurado?</label>
+              <select name="cors_control" class="form-input w-full">
+                <option value="">Selecione...</option>
+                <option value="sim">Sim</option>
+                <option value="nao">Não</option>
+                <option value="nao_sei">Não sei</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="mt-6">
+            <label class="form-label">Uso de webhooks</label>
+            <textarea name="webhooks_info" class="form-input w-full h-20" placeholder="Descreva os webhooks utilizados e como estão protegidos"></textarea>
+          </div>
+          
+          <div class="mt-6">
+            <label class="form-label">Observações Finais</label>
+            <textarea name="final_observations" class="form-input w-full h-32" placeholder="Informações adicionais, acesso de teste (tokens temporários, credenciais de homologação), logs anonimizados, etc."></textarea>
+          </div>
+        </div>
+
+        <!-- Privacidade e Termos de Uso -->
+        <div class="form-section fade-in-up" style="animation-delay: 1.1s">
+          <h2 class="text-2xl font-bold text-matrix mb-6 font-mono">
+            <span class="text-gray-500"># 11.</span> Privacidade e Termos de Uso
+          </h2>
+          
+          <div class="space-y-4">
+            <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 text-sm text-gray-300">
+              <h3 class="text-lg font-bold text-matrix mb-3 font-mono">Política de Privacidade</h3>
+              <p class="mb-3">
+                A <strong>SecREST</strong> está comprometida com a proteção da sua privacidade. Os dados coletados neste formulário serão utilizados exclusivamente para:
+              </p>
+              <ul class="list-disc list-inside space-y-1 mb-3 text-gray-400">
+                <li>Elaboração de proposta comercial personalizada</li>
+                <li>Planejamento e execução da auditoria de segurança</li>
+                <li>Comunicação durante o projeto</li>
+                <li>Elaboração de relatórios técnicos</li>
+              </ul>
+              <p class="mb-3">
+                <strong>Não compartilhamos</strong> suas informações com terceiros. Todos os dados são tratados com confidencialidade máxima e armazenados de forma segura, seguindo as melhores práticas de segurança da informação.
+              </p>
+              <p class="text-matrix font-semibold">
+                Os dados serão mantidos pelo prazo necessário para execução do projeto e posterior suporte, sendo eliminados após o período de retenção legal.
+              </p>
+            </div>
+            
+            <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 text-sm text-gray-300">
+              <h3 class="text-lg font-bold text-matrix mb-3 font-mono">Termos de Uso</h3>
+              <p class="mb-3">
+                Ao submeter este formulário, você concorda com os seguintes termos:
+              </p>
+              <ul class="list-disc list-inside space-y-1 mb-3 text-gray-400">
+                <li>As informações fornecidas são verdadeiras e precisas</li>
+                <li>Você possui autorização para solicitar a auditoria dos sistemas mencionados</li>
+                <li>A auditoria será realizada apenas em sistemas de sua propriedade ou com autorização expressa</li>
+                <li>Os testes serão conduzidos de forma ética e responsável</li>
+                <li>Relatórios e descobertas são confidenciais e de uso exclusivo do contratante</li>
+              </ul>
+              <p class="text-matrix font-semibold">
+                A SecREST se compromete a realizar apenas <em>ethical hacking</em> e testes autorizados, seguindo as melhores práticas da indústria.
+              </p>
+            </div>
+          </div>
+          
+          <div class="mt-6 space-y-3">
+            <label class="flex items-start space-x-3 cursor-pointer">
+              <input type="checkbox" name="accept_privacy" class="checkbox-custom mt-1" required>
+              <span class="text-sm">
+                Li e aceito a <span class="text-matrix font-semibold">Política de Privacidade</span> da SecREST. Concordo com o tratamento dos meus dados conforme descrito acima. *
+              </span>
+            </label>
+            
+            <label class="flex items-start space-x-3 cursor-pointer">
+              <input type="checkbox" name="accept_terms" class="checkbox-custom mt-1" required>
+              <span class="text-sm">
+                Li e aceito os <span class="text-matrix font-semibold">Termos de Uso</span> e confirmo que possuo autorização para solicitar a auditoria dos sistemas mencionados. *
+              </span>
+            </label>
+            
+            <label class="flex items-start space-x-3 cursor-pointer">
+              <input type="checkbox" name="authorize_contact" class="checkbox-custom mt-1" required>
+              <span class="text-sm">
+                Autorizo a SecREST a entrar em contato comigo através dos dados fornecidos para discussão do projeto e envio de proposta comercial. *
+              </span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Botões de Ação -->
+        <div class="flex flex-col sm:flex-row gap-4 justify-center fade-in-up" style="animation-delay: 1.2s">
+          <button type="submit" class="inline-block bg-gradient-to-r from-green-500 to-green-600 text-black px-8 py-4 rounded font-bold hover:from-green-400 hover:to-green-500 transition-all transform hover:scale-105 font-mono scale-on-hover">
+            > ENVIAR_FORMULÁRIO
+          </button>
+          <button type="reset" class="inline-block border-2 border-gray-600 text-gray-300 px-8 py-4 rounded font-bold hover:bg-gray-600 hover:text-white transition-all font-mono scale-on-hover">
+            > LIMPAR_CAMPOS
+          </button>
+        </div>
+
+        <div class="text-center mt-8 p-4 bg-gray-900 border border-gray-800 rounded-lg fade-in-up" style="animation-delay: 1.3s">
+          <p class="text-sm text-gray-400 font-mono">
+            <span class="text-matrix">contato@secrest.com</span> | 
+            <span class="text-matrix">+55 (35) 99999-9999</span>
+          </p>
+        </div>
+
+      </form>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-black border-t border-gray-800 py-8 text-center">
+    <div class="max-w-4xl mx-auto px-6">
+      <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+        <div class="flex items-center space-x-2">
+          <img src="logo.png" alt="SecREST Logo" class="w-6 h-6 object-contain">
+          <span class="text-matrix font-mono font-bold">SecREST</span>
+        </div>
+        
+        <div class="text-sm text-gray-500 font-mono">
+          <span>&copy; 2025 SecREST - Cybersecurity Consulting</span>
+        </div>
+        
+        <div class="text-sm text-gray-500 font-mono">
+          <span class="text-matrix">root@secrest.com</span>
+        </div>
+      </div>
+      
+      <div class="mt-6 pt-6 border-t border-gray-800">
+        <p class="text-xs text-gray-600 font-mono">
+          Ethical hacking services - Penetration testing as code
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Animações de fade-in baseadas no scroll
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = '1';
+          entry.target.style.transform = 'translateY(0)';
+        }
+      });
+    }, observerOptions);
+
+    // Observar todos os elementos com animação
+    document.querySelectorAll('.fade-in-up').forEach(el => {
+      observer.observe(el);
+    });
+
+    // Submissão do formulário
+    document.getElementById('audit-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      // Validar checkboxes obrigatórios de privacidade
+      const acceptPrivacy = document.querySelector('input[name="accept_privacy"]:checked');
+      const acceptTerms = document.querySelector('input[name="accept_terms"]:checked');
+      const authorizeContact = document.querySelector('input[name="authorize_contact"]:checked');
+      
+      if (!acceptPrivacy || !acceptTerms || !authorizeContact) {
+        alert('Por favor, aceite todos os termos obrigatórios antes de enviar o formulário.');
+        return;
+      }
+      
+      // Coletar dados do formulário
+      const formData = new FormData(this);
+      const data = {};
+      
+      // Processar campos normais
+      for (let [key, value] of formData.entries()) {
+        if (data[key]) {
+          if (Array.isArray(data[key])) {
+            data[key].push(value);
+          } else {
+            data[key] = [data[key], value];
+          }
+        } else {
+          data[key] = value;
+        }
+      }
+      
+      // Processar checkboxes
+      const checkboxGroups = ['environment', 'http_methods', 'payload_types', 'auth_types', 'validation_types', 'testing_frequency', 'security_tests'];
+      checkboxGroups.forEach(group => {
+        const checkboxes = document.querySelectorAll(`input[name="${group}[]"]:checked`);
+        data[group] = Array.from(checkboxes).map(cb => cb.value);
+      });
+      
+      // Simular envio (aqui você integraria com seu backend)
+      alert('Formulário enviado com sucesso! Nossa equipe entrará em contato em breve.');
+      
+      // Log dos dados (remover em produção)
+      console.log('Dados do formulário:', data);
+    });
+
+    // Efeito de digitação no cursor
+    setInterval(() => {
+      const cursor = document.querySelector('.terminal-cursor');
+      if (cursor) {
+        cursor.style.opacity = cursor.style.opacity === '0' ? '1' : '0';
+      }
+    }, 500);
+  </script>
+</body>
+</html>

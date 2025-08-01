@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SecREST - Consultoria de Segurança para APIs RESTful</title>
+  <meta name="description"
+    content="Consultoria especializada em segurança de APIs RESTful, com análise de vulnerabilidades e recomendações baseadas na OWASP." />
+  <link rel="icon" type="image/png" href="logo.png?v=2025">
+  <link rel="shortcut icon" type="image/png" href="logo.png?v=2025">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+    .font-mono {
+      font-family: 'Fira Code', monospace;
+    }
+
+    .font-sans {
+      font-family: 'Inter', sans-serif;
+    }
+
+    .matrix-bg {
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .matrix-bg::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image:
+        radial-gradient(circle at 20% 80%, rgba(0, 255, 0, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(0, 255, 0, 0.05) 0%, transparent 50%);
+      z-index: 0;
+      animation: pulse-bg 4s ease-in-out infinite alternate;
+    }
+
+    .matrix-rain {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
+    }
+
+    .matrix-rain::before {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background-image: repeating-linear-gradient(0deg,
+          transparent,
+          transparent 98px,
+          rgba(0, 255, 0, 0.03) 100px);
+      animation: matrix-scroll 20s linear infinite;
+    }
+
+    @keyframes matrix-scroll {
+      0% {
+        transform: translateY(-100px);
+      }
+
+      100% {
+        transform: translateY(calc(100vh + 100px));
+      }
+    }
+
+    @keyframes pulse-bg {
+      0% {
+        opacity: 0.7;
+      }
+
+      100% {
+        opacity: 1;
+      }
+    }
+
+    .glow-green {
+      box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+    }
+
+    .text-matrix {
+      color: #00ff00;
+      text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+    }
+
+    .border-matrix {
+      border-color: #00ff00;
+    }
+
+    .code-block {
+      background: #0d1117;
+      border: 1px solid #30363d;
+      font-family: 'Fira Code', monospace;
+    }
+
+    .hover-glow:hover {
+      box-shadow: 0 0 30px rgba(0, 255, 0, 0.4);
+      transform: translateY(-2px);
+      transition: all 0.3s ease;
+    }
+
+    .terminal-cursor {
+      animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
+
+      0%,
+      50% {
+        opacity: 1;
+      }
+
+      51%,
+      100% {
+        opacity: 0;
+      }
+    }
+
+    .fade-in-up {
+      opacity: 0;
+      transform: translateY(30px);
+      animation: fadeInUp 0.8s ease forwards;
+    }
+
+    .fade-in-left {
+      opacity: 0;
+      transform: translateX(-30px);
+      animation: fadeInLeft 0.8s ease forwards;
+    }
+
+    .fade-in-right {
+      opacity: 0;
+      transform: translateX(30px);
+      animation: fadeInRight 0.8s ease forwards;
+    }
+
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeInLeft {
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes fadeInRight {
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .typing-effect {
+      overflow: hidden;
+      border-right: 3px solid #00ff00;
+      white-space: nowrap;
+      animation: typing 3s steps(40, end), blink-caret 0.75s step-end infinite;
+    }
+
+    @keyframes typing {
+      from {
+        width: 0;
+      }
+
+      to {
+        width: 100%;
+      }
+    }
+
+    @keyframes blink-caret {
+
+      from,
+      to {
+        border-color: transparent;
+      }
+
+      50% {
+        border-color: #00ff00;
+      }
+    }
+
+    .scale-on-hover {
+      transition: transform 0.3s ease;
+    }
+
+    .scale-on-hover:hover {
+      transform: scale(1.05);
+    }
+
+    .floating {
+      animation: floating 3s ease-in-out infinite;
+    }
+
+    @keyframes floating {
+
+      0%,
+      100% {
+        transform: translateY(0px);
+      }
+
+      50% {
+        transform: translateY(-10px);
+      }
+    }
+
+    .loading-dots::after {
+      content: '';
+      animation: loading-dots 1.5s infinite;
+    }
+
+    @keyframes loading-dots {
+
+      0%,
+      20% {
+        content: '';
+      }
+
+      40% {
+        content: '.';
+      }
+
+      60% {
+        content: '..';
+      }
+
+      80%,
+      100% {
+        content: '...';
+      }
+    }
+
+    .glitch {
+      position: relative;
+      color: #00ff00;
+      animation: glitch 2s infinite;
+    }
+
+    .glitch::before,
+    .glitch::after {
+      content: attr(data-text);
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .glitch::before {
+      animation: glitch-1 0.5s infinite;
+      color: #ff0040;
+      z-index: -1;
+    }
+
+    .glitch::after {
+      animation: glitch-2 0.5s infinite;
+      color: #00ffff;
+      z-index: -2;
+    }
+
+    @keyframes glitch {
+
+      0%,
+      100% {
+        transform: translate(0);
+      }
+
+      20% {
+        transform: translate(-2px, 2px);
+      }
+
+      40% {
+        transform: translate(-2px, -2px);
+      }
+
+      60% {
+        transform: translate(2px, 2px);
+      }
+
+      80% {
+        transform: translate(2px, -2px);
+      }
+    }
+
+    @keyframes glitch-1 {
+
+      0%,
+      100% {
+        transform: translate(0);
+      }
+
+      20% {
+        transform: translate(-2px, 2px);
+      }
+
+      40% {
+        transform: translate(-2px, -2px);
+      }
+
+      60% {
+        transform: translate(2px, 2px);
+      }
+
+      80% {
+        transform: translate(2px, -2px);
+      }
+    }
+
+    @keyframes glitch-2 {
+
+      0%,
+      100% {
+        transform: translate(0);
+      }
+
+      20% {
+        transform: translate(2px, -2px);
+      }
+
+      40% {
+        transform: translate(2px, 2px);
+      }
+
+      60% {
+        transform: translate(-2px, -2px);
+      }
+
+      80% {
+        transform: translate(-2px, 2px);
+      }
+    }
+  </style>
+</head>
+
+<body class="font-sans bg-black text-gray-100 min-h-screen">
+
+  <header
+    class="p-4 border-b border-gray-800 flex justify-between items-center bg-black/90 backdrop-blur-sm sticky top-0 z-50">
+    <div class="flex items-center space-x-3">
+      <img src="logo.png" alt="SecREST Logo" class="w-10 h-10 object-contain">
+      <div class="text-2xl font-bold text-matrix font-mono select-none cursor-default">SecREST</div>
+      <span class="terminal-cursor text-matrix">_</span>
+    </div>
+    <nav class="space-x-8 hidden md:flex">
+      <a href="#servicos"
+        class="hover:text-matrix transition-colors font-mono text-sm uppercase tracking-wider">[SERVIÇOS]</a>
+      <a href="#sobre"
+        class="hover:text-matrix transition-colors font-mono text-sm uppercase tracking-wider">[SOBRE]</a>
+      <a href="#portfolio"
+        class="hover:text-matrix transition-colors font-mono text-sm uppercase tracking-wider">[PORTIFÓLIO]</a>
+      <a href="#relatorio"
+        class="hover:text-matrix transition-colors font-mono text-sm uppercase tracking-wider">[RELATÓRIO]</a>
+      <a href="#orcamento"
+        class="hover:text-matrix transition-colors font-mono text-sm uppercase tracking-wider">[CONTATO]</a>
+    </nav>
+    <a href="#orcamento"
+      class="bg-gradient-to-r from-green-500 to-green-600 text-black px-6 py-2 rounded font-bold hover:from-green-400 hover:to-green-500 transition-all transform hover:scale-105 font-mono text-sm">
+      > REQUEST_AUDIT
+    </a>
+    <!-- Mobile menu button -->
+    <button id="btn-menu" class="md:hidden text-matrix focus:outline-none">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+        stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+    </button>
+  </header>
+
+  <nav id="mobile-menu" class="hidden flex-col space-y-4 bg-black/95 p-4 border-b border-gray-800 md:hidden">
+    <a href="#servicos" class="block hover:text-matrix transition-colors font-mono">[SERVIÇOS]</a>
+    <a href="#sobre" class="block hover:text-matrix transition-colors font-mono">[SOBRE]</a>
+    <a href="#portfolio" class="block hover:text-matrix transition-colors font-mono">[PORTFÓLIO]</a>
+    <a href="#relatorio" class="block hover:text-matrix transition-colors font-mono">[RELATÓRIO]</a>
+    <a href="#orcamento" class="block hover:text-matrix transition-colors font-mono">[CONTATO]</a>
+  </nav>
+
+  <section class="matrix-bg text-center py-20 px-4 relative z-10">
+    <div class="matrix-rain"></div>
+    <div class="max-w-6xl mx-auto">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <div class="text-left lg:text-left fade-in-left">
+          <div class="font-mono text-matrix text-sm mb-4">
+            <span class="opacity-60">root@secrest:~$</span> ./penetration_test.sh
+          </div>
+          <h1 class="text-4xl md:text-6xl font-bold mb-6 leading-tight">
+            <span class="text-white">Sec</span><span class="text-matrix">REST</span>
+          </h1>
+          <div class="code-block p-4 rounded-lg mb-6 text-left">
+            <div class="text-green-400 text-sm font-mono">
+              <span class="text-gray-500"># Penetration Testing as Code</span><br />
+              <span class="text-blue-400">def</span> <span class="text-yellow-400">audit_api</span>(<span
+                class="text-orange-400">target</span>):<br />
+              &nbsp;&nbsp;<span class="text-purple-400">vulnerabilities</span> = <span
+                class="text-blue-400">scan</span>(<span class="text-orange-400">target</span>)<br />
+              &nbsp;&nbsp;<span class="text-blue-400">return</span> <span
+                class="text-green-400">secure_recommendations</span>
+            </div>
+          </div>
+          <p class="text-lg md:text-xl text-gray-300 mb-8 max-w-xl">
+            Consultoria especializada em <span class="text-matrix font-semibold">penetration testing</span> de APIs
+            RESTful.
+            Metodologia <span class="text-matrix font-semibold">OWASP</span> aplicada por especialistas certificados.
+          </p>
+          <div class="flex flex-col sm:flex-row gap-4">
+            <a href="#orcamento"
+              class="inline-block bg-gradient-to-r from-green-500 to-green-600 text-black px-8 py-4 rounded font-bold hover:from-green-400 hover:to-green-500 transition-all transform hover:scale-105 font-mono scale-on-hover">
+              > INICIAR_AUDITORIA
+            </a>
+            <a href="#portfolio"
+              class="inline-block border-2 border-matrix text-matrix px-8 py-4 rounded font-bold hover:bg-green-500 hover:text-black transition-all font-mono scale-on-hover">
+              > VER_PORTFOLIO
+            </a>
+          </div>
+        </div>
+
+        <div class="relative fade-in-right">
+          <div
+            class="bg-gradient-to-br from-gray-900 to-black rounded-lg p-6 border border-gray-800 hover-glow transition-all duration-300">
+            <div class="bg-gray-900 rounded-lg border border-green-500/30 overflow-hidden">
+              <div class="bg-black border-b border-green-500/30 p-3 flex items-center space-x-2">
+                <div class="flex space-x-1">
+                  <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+                  <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                  <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                </div>
+                <span class="text-matrix font-mono text-sm ml-2">secrest@audit-terminal</span>
+              </div>
+
+              <div class="p-4 bg-black text-sm font-mono max-h-96 overflow-y-auto">
+                <div class="text-gray-400 mb-3">
+                  <span class="text-matrix">root@secrest:~$</span> ./api_audit.py --target=api.example.com
+                </div>
+
+                <div class="text-yellow-400 mb-3">
+                  [INFO] Starting API Security Audit...<br />
+                  [INFO] Target: https://api.example.com<br />
+                  <span class="text-green-400">[✓]</span> Endpoint discovery complete<br />
+                  <span class="text-green-400">[✓]</span> Authentication analysis complete<br />
+                  <span class="text-red-400">[!]</span> Vulnerabilities detected
+                </div>
+
+                <div class="border-l-2 border-red-500 pl-3 mb-4">
+                  <div class="text-red-400 font-bold mb-2"> CRITICAL VULNERABILITIES FOUND</div>
+
+                  <div class="space-y-2 text-xs">
+                    <div class="bg-red-900/30 p-2 rounded border border-red-700">
+                      <span class="text-red-400">CVE-2023-3487</span> - Broken Authentication<br />
+                      <span class="text-gray-400">Endpoint:</span> <span
+                        class="text-yellow-300">/api/v1/login</span><br />
+                      <span class="text-gray-400">Risk:</span> <span class="text-red-300">CRITICAL</span>
+                    </div>
+
+                    <div class="bg-orange-900/30 p-2 rounded border border-orange-700">
+                      <span class="text-orange-400">SQL Injection</span> - Data Exposure<br />
+                      <span class="text-gray-400">Endpoint:</span> <span
+                        class="text-yellow-300">/api/v1/users?id=</span><br />
+                      <span class="text-gray-400">Risk:</span> <span class="text-orange-300">HIGH</span>
+                    </div>
+
+                    <div class="bg-yellow-900/30 p-2 rounded border border-yellow-700">
+                      <span class="text-yellow-400">CORS Misconfiguration</span><br />
+                      <span class="text-gray-400">Header:</span> <span
+                        class="text-yellow-300">Access-Control-Allow-Origin: *</span><br />
+                      <span class="text-gray-400">Risk:</span> <span class="text-yellow-300">MEDIUM</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="border-l-2 border-blue-500 pl-3 mb-3">
+                  <div class="text-blue-400 font-bold mb-2">SAMPLE REPORT (JSON)</div>
+                  <div class="bg-gray-800 p-2 rounded text-xs overflow-x-auto">
+                    <pre class="text-green-400 text-left">{
+  "audit_summary": {
+    "total_endpoints": 45,
+    "vulnerabilities_found": 12,
+    "critical": 3,
+    "high": 4,
+    "medium": 5
+  },
+  "findings": [
+    {
+      "id": "AUTH_001",
+      "severity": "CRITICAL",
+      "title": "JWT Secret Exposed",
+      "endpoint": "/api/v1/auth",
+      "method": "POST"
+    }
+  ]
+}</pre>
+                  </div>
+                </div>
+
+                <div class="border-l-2 border-matrix pl-3">
+                  <div class="text-matrix font-bold mb-2"> AUDIT COMPLETE</div>
+                  <div class="text-xs space-y-1">
+                    <div><span class="text-gray-400">Endpoints Tested:</span> <span class="text-white">45</span></div>
+                    <div><span class="text-gray-400">Report Generated:</span> <span
+                        class="text-green-400">report_2025-01-31.pdf</span></div>
+                  </div>
+                </div>
+
+                <div class="mt-3">
+                  <span class="text-matrix">root@secrest:~$</span> <span class="terminal-cursor">_</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="servicos" class="py-20 px-6 bg-gray-900">
+    <div class="max-w-6xl mx-auto">
+      <div class="text-center mb-16">
+        <h2 class="text-4xl font-bold mb-4">
+          <span class="text-white">Nossos</span> <span class="text-matrix font-mono">[SERVIÇOS]</span>
+        </h2>
+        <div class="w-24 h-1 bg-gradient-to-r from-green-500 to-green-600 mx-auto"></div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="bg-black border border-gray-800 rounded-lg p-8 hover-glow transition-all duration-300 group">
+          <div class="mb-6">
+            <div
+              class="w-full h-32 bg-gray-800 rounded-lg flex items-center justify-center border-2 border-gray-700 group-hover:border-matrix transition-colors">
+              <div class="text-center text-gray-600 group-hover:text-matrix transition-colors">
+                <svg class="w-16 h-16 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                    d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.623 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                  <circle cx="12" cy="12" r="1" fill="currentColor" />
+                  <circle cx="8" cy="8" r="0.5" fill="currentColor" />
+                  <circle cx="16" cy="16" r="0.5" fill="currentColor" />
+                </svg>
+                <p class="font-mono text-xs opacity-75">Vulnerability Scanner</p>
+              </div>
+            </div>
+          </div>
+
+          <h3 class="text-xl font-bold mb-4 text-matrix font-mono">vulnerability_scan()</h3>
+          <div class="code-block p-3 rounded mb-4 text-sm">
+            <span class="text-gray-500"># OWASP API Security Top 10</span><br />
+            <span class="text-green-400">scan_types = [</span><br />
+            &nbsp;&nbsp;<span class="text-yellow-400">"injection_attacks",</span><br />
+            &nbsp;&nbsp;<span class="text-yellow-400">"broken_auth",</span><br />
+            &nbsp;&nbsp;<span class="text-yellow-400">"data_exposure"</span><br />
+            <span class="text-green-400">]</span>
+          </div>
+          <p class="text-gray-300 leading-relaxed">
+            Identificação de falhas críticas como <span class="text-matrix">Broken Authentication</span>,
+            <span class="text-matrix">Injection</span> e <span class="text-matrix">Insecure Design</span>,
+            com base no OWASP API Security Top 10.
+          </p>
+        </div>
+
+        <div class="bg-black border border-gray-800 rounded-lg p-8 hover-glow transition-all duration-300 group">
+          <div class="mb-6">
+            <div
+              class="w-full h-32 bg-gray-800 rounded-lg flex items-center justify-center border-2 border-gray-700 group-hover:border-matrix transition-colors">
+              <div class="text-center text-gray-600 group-hover:text-matrix transition-colors">
+                <svg class="w-16 h-16 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                    d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 13.5v2.25" />
+                  <circle cx="15" cy="9" r="1" fill="currentColor" />
+                  <circle cx="9" cy="15" r="0.5" fill="currentColor" />
+                </svg>
+                <p class="font-mono text-xs opacity-75">Auth & Authorization</p>
+              </div>
+            </div>
+          </div>
+
+          <h3 class="text-xl font-bold mb-4 text-matrix font-mono">auth_penetration_test()</h3>
+          <div class="code-block p-3 rounded mb-4 text-sm">
+            <span class="text-gray-500"># Authentication & Authorization</span><br />
+            <span class="text-green-400">test_protocols = [</span><br />
+            &nbsp;&nbsp;<span class="text-yellow-400">"oauth2_flows",</span><br />
+            &nbsp;&nbsp;<span class="text-yellow-400">"jwt_validation",</span><br />
+            &nbsp;&nbsp;<span class="text-yellow-400">"rbac_bypass"</span><br />
+            <span class="text-green-400">]</span>
+          </div>
+          <p class="text-gray-300 leading-relaxed">
+            Auditorias para verificar a segurança de fluxos <span class="text-matrix">OAuth 2.0</span>,
+            <span class="text-matrix">JWT</span>, controle de acesso e prevenção de vazamento de dados.
+          </p>
+        </div>
+
+        <div class="bg-black border border-gray-800 rounded-lg p-8 hover-glow transition-all duration-300 group">
+          <div class="mb-6">
+            <div
+              class="w-full h-32 bg-gray-800 rounded-lg flex items-center justify-center border-2 border-gray-700 group-hover:border-matrix transition-colors">
+              <div class="text-center text-gray-600 group-hover:text-matrix transition-colors">
+                <svg class="w-16 h-16 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                    d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7.5 13.5h6M7.5 16.5h3" />
+                  <circle cx="16" cy="16" r="1.5" fill="currentColor" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M14.5 18l1.5-1.5 3 3" />
+                </svg>
+                <p class="font-mono text-xs opacity-75">Security Reports</p>
+              </div>
+            </div>
+          </div>
+
+          <h3 class="text-xl font-bold mb-4 text-matrix font-mono">generate_report()</h3>
+          <div class="code-block p-3 rounded mb-4 text-sm">
+            <span class="text-gray-500"># Security Hardening Report</span><br />
+            <span class="text-green-400">deliverables = [</span><br />
+            &nbsp;&nbsp;<span class="text-yellow-400">"executive_summary",</span><br />
+            &nbsp;&nbsp;<span class="text-yellow-400">"technical_details",</span><br />
+            &nbsp;&nbsp;<span class="text-yellow-400">"remediation_guide"</span><br />
+            <span class="text-green-400">]</span>
+          </div>
+          <p class="text-gray-300 leading-relaxed">
+            Relatórios técnicos detalhados com sugestões práticas para <span class="text-matrix">hardening</span>,
+            refatoração segura e implementação de políticas de segurança.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="portfolio" class="py-20 px-6 bg-black">
+    <div class="max-w-6xl mx-auto">
+      <div class="text-center mb-16">
+        <h2 class="text-4xl font-bold mb-4">
+          <span class="text-white">Arsenal de</span> <span class="text-matrix font-mono">[FERRAMENTAS]</span>
+        </h2>
+        <div class="w-24 h-1 bg-gradient-to-r from-green-500 to-green-600 mx-auto mb-6"></div>
+        <p class="text-gray-400 max-w-2xl mx-auto">
+          Utilizamos as ferramentas mais avançadas da indústria para garantir a máxima cobertura de testes
+        </p>
+      </div>
+
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
+        <div
+          class="bg-gray-900 border border-gray-800 rounded-lg p-6 text-center hover-glow transition-all duration-300 group">
+          <div
+            class="w-full h-20 bg-gray-800 rounded mb-4 flex items-center justify-center border-2 border-dashed border-gray-700 group-hover:border-matrix transition-colors overflow-hidden">
+            <div class="text-center text-matrix">
+              <svg class="w-12 h-12 mx-auto" fill="currentColor" viewBox="0 0 24 24">
+                <path
+                  d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+                <circle cx="12" cy="8" r="1.5" fill="#000" />
+                <path d="M8 10h8v1H8zM8 12h8v1H8z" fill="#000" />
+              </svg>
+            </div>
+          </div>
+          <h4 class="font-mono text-matrix text-sm font-bold">Kali Linux</h4>
+        </div>
+
+        <div
+          class="bg-gray-900 border border-gray-800 rounded-lg p-6 text-center hover-glow transition-all duration-300 group">
+          <div
+            class="w-full h-20 bg-gray-800 rounded mb-4 flex items-center justify-center border-2 border-dashed border-gray-700 group-hover:border-matrix transition-colors overflow-hidden">
+            <div class="text-center text-matrix">
+              <svg class="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                <circle cx="12" cy="12" r="1" fill="currentColor" />
+              </svg>
+            </div>
+          </div>
+          <h4 class="font-mono text-matrix text-sm font-bold">Burp Suite</h4>
+        </div>
+
+        <div
+          class="bg-gray-900 border border-gray-800 rounded-lg p-6 text-center hover-glow transition-all duration-300 group">
+          <div
+            class="w-full h-20 bg-gray-800 rounded mb-4 flex items-center justify-center border-2 border-dashed border-gray-700 group-hover:border-matrix transition-colors overflow-hidden">
+            <div class="text-center text-matrix">
+              <svg class="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M7 9l2 2 4-4" />
+              </svg>
+            </div>
+          </div>
+          <h4 class="font-mono text-matrix text-sm font-bold">Postman</h4>
+        </div>
+
+        <div
+          class="bg-gray-900 border border-gray-800 rounded-lg p-6 text-center hover-glow transition-all duration-300 group">
+          <div
+            class="w-full h-20 bg-gray-800 rounded mb-4 flex items-center justify-center border-2 border-dashed border-gray-700 group-hover:border-matrix transition-colors overflow-hidden">
+            <div class="text-center text-matrix">
+              <svg class="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.623 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                <circle cx="12" cy="10" r="1" fill="currentColor" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M8 14h8" />
+              </svg>
+            </div>
+          </div>
+          <h4 class="font-mono text-matrix text-sm font-bold">OWASP ZAP</h4>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="bg-gray-900 border border-gray-800 rounded-lg p-8 hover-glow transition-all duration-300">
+          <div class="flex items-start space-x-4">
+            <div class="w-16 h-16 bg-gray-800 rounded-lg flex items-center justify-center border-2 border-gray-700">
+              <svg class="w-8 h-8 text-matrix" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <circle cx="12" cy="12" r="1" fill="currentColor" />
+              </svg>
+            </div>
+            <div class="flex-1">
+              <h4 class="text-lg font-bold text-matrix mb-2">FinTech Brasileira</h4>
+              <p class="text-gray-400 text-sm mb-3">Identificamos 15 vulnerabilidades críticas em API de pagamentos</p>
+              <div class="code-block p-2 rounded text-xs">
+                <span class="text-green-400">Resultado:</span> <span class="text-yellow-400">100% das falhas
+                  corrigidas</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-gray-900 border border-gray-800 rounded-lg p-8 hover-glow transition-all duration-300">
+          <div class="flex items-start space-x-4">
+            <div class="w-16 h-16 bg-gray-800 rounded-lg flex items-center justify-center border-2 border-gray-700">
+              <svg class="w-8 h-8 text-matrix" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M16 11V7a4 4 0 00-8 0v4M8 11v6a2 2 0 002 2h4a2 2 0 002-2v-6M8 11h8" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                <circle cx="12" cy="13" r="1.5" fill="currentColor" />
+              </svg>
+            </div>
+            <div class="flex-1">
+              <h4 class="text-lg font-bold text-matrix mb-2">E-commerce Enterprise</h4>
+              <p class="text-gray-400 text-sm mb-3">Pentest completo em microserviços de checkout</p>
+              <div class="code-block p-2 rounded text-xs">
+                <span class="text-green-400">Resultado:</span> <span class="text-yellow-400">Zero vulnerabilidades OWASP
+                  Top 10</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="sobre" class="py-20 px-6 bg-gray-900">
+    <div class="max-w-6xl mx-auto">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <div>
+          <h2 class="text-4xl font-bold mb-6">
+            <span class="text-white">Sobre</span> <span class="text-matrix font-mono">[NÓS]</span>
+          </h2>
+          <div class="w-24 h-1 bg-gradient-to-r from-green-500 to-green-600 mb-8"></div>
+
+          <div class="space-y-6 text-gray-300">
+            <p class="text-lg leading-relaxed">
+              Somos especialistas em <span class="text-matrix font-semibold">cybersecurity</span> com foco exclusivo em
+              APIs RESTful.
+              Nossa metodologia combina técnicas avançadas de <span class="text-matrix font-semibold">penetration
+                testing</span>
+              com frameworks reconhecidos mundialmente.
+            </p>
+
+            <div class="code-block p-4 rounded">
+              <div class="text-sm font-mono">
+                <span class="text-gray-500"># Certificações & Expertise</span><br />
+                <span class="text-green-400">certifications = {</span><br />
+                &nbsp;&nbsp;<span class="text-yellow-400">"OSCP"</span>: <span class="text-blue-400">True</span>,<br />
+                &nbsp;&nbsp;<span class="text-yellow-400">"CEH"</span>: <span class="text-blue-400">True</span>,<br />
+                &nbsp;&nbsp;<span class="text-yellow-400">"OWASP_Member"</span>: <span
+                  class="text-blue-400">True</span><br />
+                <span class="text-green-400">}</span>
+              </div>
+            </div>
+
+            <p class="leading-relaxed">
+              Utilizamos metodologias comprovadas baseadas na <span class="text-matrix font-semibold">OWASP</span> e
+              <span class="text-matrix font-semibold">MITRE ATT&CK</span>,
+              com experiência prática em ferramentas como <span class="text-matrix">Kali Linux</span>,
+              <span class="text-matrix">Burp Suite</span>, <span class="text-matrix">Postman</span> e
+              <span class="text-matrix">OWASP ZAP</span> para garantir a máxima proteção dos seus sistemas.
+            </p>
+          </div>
+        </div>
+
+        <div class="relative">
+          <div
+            class="bg-gradient-to-br from-gray-900 to-black rounded-lg p-8 border border-gray-800 hover-glow transition-all duration-300">
+            <div
+              class="aspect-square bg-gray-800 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-600">
+              <div class="text-center text-gray-500">
+                <svg class="w-16 h-16 mx-auto mb-4 text-matrix" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
+                  </path>
+                </svg>
+                <p class="font-mono text-sm">
+                  [IMAGEM_EQUIPE]<br />
+                  Security Team<br />
+                  500x500px
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="relatorio" class="py-20 px-6 bg-black">
+    <div class="max-w-6xl mx-auto">
+      <div class="text-center mb-16">
+        <h2 class="text-4xl font-bold mb-4">
+          <span class="text-white">Demonstração de</span> <span class="text-matrix font-mono">[RELATÓRIO]</span>
+        </h2>
+        <div class="w-24 h-1 bg-gradient-to-r from-green-500 to-green-600 mx-auto mb-6"></div>
+        <p class="text-gray-400 max-w-2xl mx-auto">
+          Veja um exemplo real de como nossos relatórios técnicos são estruturados
+        </p>
+      </div>
+
+      <div
+        class="bg-gradient-to-br from-gray-900 to-black rounded-lg border border-gray-800 hover-glow transition-all duration-300 p-8">
+
+        <div class="border-b border-gray-700 pb-6 mb-8">
+          <div class="flex items-center space-x-4 mb-4">
+            <img src="logo.png" alt="SecREST Logo" class="w-12 h-12 object-contain">
+            <div>
+              <h3 class="text-2xl font-bold text-matrix font-mono">SecREST</h3>
+              <p class="text-gray-400 text-sm">Relatório Técnico de Auditoria de Segurança em API RESTful</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+            <div class="space-y-2">
+              <div><span class="text-gray-400">Cliente:</span> <span class="text-white">Exemplo S/A</span></div>
+              <div><span class="text-gray-400">Data da Auditoria:</span> <span class="text-white">31/07/2025</span>
+              </div>
+            </div>
+            <div class="space-y-2">
+              <div><span class="text-gray-400">Analista Responsável:</span> <span class="text-white">Vinicius
+                  Henrique</span></div>
+              <div><span class="text-gray-400">Metodologia:</span> <span class="text-matrix">OWASP API Security Top
+                  10</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-8">
+          <h4 class="text-xl font-bold text-matrix mb-4 font-mono">1. Sumário Executivo</h4>
+          <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+            <p class="text-gray-300 leading-relaxed mb-4">
+              Durante a auditoria da API <span class="text-yellow-300 font-mono">https://api.exemplo.com</span>, foram
+              identificadas
+              <span class="text-red-400 font-bold">12 vulnerabilidades</span>, sendo
+              <span class="text-red-400">3 críticas</span>,
+              <span class="text-orange-400">4 altas</span>,
+              <span class="text-yellow-400">5 médias</span> e
+              <span class="text-green-400">0 baixas</span>.
+            </p>
+            <div class="bg-red-900/30 border border-red-700 rounded p-3">
+              <p class="text-red-300 text-sm">
+                ⚠️ <strong>Ação Imediata Requerida:</strong> A SecREST recomenda mitigação imediata das falhas
+                classificadas como críticas e altas.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-8">
+          <h4 class="text-xl font-bold text-matrix mb-4 font-mono">2. Resumo de Vulnerabilidades</h4>
+          <div class="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
+            <table class="w-full text-sm">
+              <thead class="bg-gray-900 border-b border-gray-700">
+                <tr>
+                  <th class="text-left p-4 text-matrix font-mono">Severidade</th>
+                  <th class="text-left p-4 text-matrix font-mono">Quantidade</th>
+                  <th class="text-left p-4 text-matrix font-mono">Exemplos</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-700">
+                <tr class="hover:bg-gray-750">
+                  <td class="p-4"><span
+                      class="px-2 py-1 bg-red-900 text-red-300 rounded text-xs font-bold">CRÍTICA</span></td>
+                  <td class="p-4 text-white font-bold">3</td>
+                  <td class="p-4 text-gray-300">Broken Authentication, JWT Insecure</td>
+                </tr>
+                <tr class="hover:bg-gray-750">
+                  <td class="p-4"><span
+                      class="px-2 py-1 bg-orange-900 text-orange-300 rounded text-xs font-bold">ALTA</span></td>
+                  <td class="p-4 text-white font-bold">4</td>
+                  <td class="p-4 text-gray-300">SQL Injection, Rate Limit Bypass</td>
+                </tr>
+                <tr class="hover:bg-gray-750">
+                  <td class="p-4"><span
+                      class="px-2 py-1 bg-yellow-900 text-yellow-300 rounded text-xs font-bold">MÉDIA</span></td>
+                  <td class="p-4 text-white font-bold">5</td>
+                  <td class="p-4 text-gray-300">CORS, Info Leakage, Verbose Errors</td>
+                </tr>
+                <tr class="hover:bg-gray-750">
+                  <td class="p-4"><span
+                      class="px-2 py-1 bg-green-900 text-green-300 rounded text-xs font-bold">BAIXA</span></td>
+                  <td class="p-4 text-white font-bold">0</td>
+                  <td class="p-4 text-gray-400">—</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="mb-8">
+          <h4 class="text-xl font-bold text-matrix mb-4 font-mono">3. Principais Falhas Encontradas</h4>
+
+          <div class="bg-red-900/20 border border-red-700 rounded-lg p-6 mb-4">
+            <h5 class="text-lg font-bold text-red-400 mb-3 font-mono">3.1 [CRÍTICA] Broken Authentication – Login
+              Endpoint</h5>
+            <div class="space-y-3 text-sm">
+              <div>
+                <span class="text-gray-400">Descrição:</span>
+                <span class="text-gray-300">Falta de verificação adequada em tokens e sessões.</span>
+              </div>
+              <div>
+                <span class="text-gray-400">Endpoint:</span>
+                <code class="bg-gray-800 px-2 py-1 rounded text-yellow-300">POST /api/v1/login</code>
+              </div>
+              <div>
+                <span class="text-gray-400">Impacto:</span>
+                <span class="text-red-300">Permite que um atacante force logins com brute-force.</span>
+              </div>
+              <div class="bg-gray-800 p-3 rounded">
+                <div class="text-green-400 text-xs font-mono mb-2">Recomendações:</div>
+                <ul class="text-gray-300 text-xs space-y-1 list-disc list-inside">
+                  <li>Implementar rate limiting e lockout por IP</li>
+                  <li>Adotar autenticação multifator (MFA)</li>
+                  <li>Validar tokens com expiração e assinatura</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-orange-900/20 border border-orange-700 rounded-lg p-6 mb-4">
+            <h5 class="text-lg font-bold text-orange-400 mb-3 font-mono">3.2 [ALTA] SQL Injection – Parâmetro Não
+              Saneado</h5>
+            <div class="space-y-3 text-sm">
+              <div>
+                <span class="text-gray-400">Endpoint:</span>
+                <code class="bg-gray-800 px-2 py-1 rounded text-yellow-300">/api/v1/users?id=123 OR 1=1</code>
+              </div>
+              <div>
+                <span class="text-gray-400">Exploração:</span>
+                <span class="text-gray-300">Manipulação do parâmetro id permite bypass em queries SQL.</span>
+              </div>
+              <div class="bg-gray-800 p-3 rounded">
+                <div class="text-green-400 text-xs font-mono mb-2">Recomendações:</div>
+                <ul class="text-gray-300 text-xs space-y-1 list-disc list-inside">
+                  <li>Utilizar ORMs seguros ou prepared statements</li>
+                  <li>Sanitização rigorosa dos inputs de usuário</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-yellow-900/20 border border-yellow-700 rounded-lg p-6">
+            <h5 class="text-lg font-bold text-yellow-400 mb-3 font-mono">3.3 [MÉDIA] CORS Misconfiguration</h5>
+            <div class="space-y-3 text-sm">
+              <div>
+                <span class="text-gray-400">Descrição:</span>
+                <span class="text-gray-300">Permissão de origens externas não confiáveis.</span>
+              </div>
+              <div>
+                <span class="text-gray-400">Header:</span>
+                <code class="bg-gray-800 px-2 py-1 rounded text-yellow-300">Access-Control-Allow-Origin: *</code>
+              </div>
+              <div>
+                <span class="text-gray-400">Risco:</span>
+                <span class="text-yellow-300">Pode permitir exploração de API por scripts maliciosos.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-8">
+          <h4 class="text-xl font-bold text-matrix mb-4 font-mono">4. Boas Práticas Encontradas</h4>
+          <div class="bg-green-900/20 border border-green-700 rounded-lg p-6">
+            <ul class="text-green-300 space-y-2 text-sm">
+              <li class="flex items-center space-x-2">
+                <span class="text-green-400">✓</span>
+                <span>Uso de HTTPS em todos os endpoints</span>
+              </li>
+              <li class="flex items-center space-x-2">
+                <span class="text-green-400">✓</span>
+                <span>Tokens JWT com algoritmos robustos (HS256)</span>
+              </li>
+              <li class="flex items-center space-x-2">
+                <span class="text-green-400">✓</span>
+                <span>Segregação de ambientes (produção, staging)</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="border-t border-gray-700 pt-6">
+          <h4 class="text-xl font-bold text-matrix mb-4 font-mono">5. Conclusão</h4>
+          <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
+            <p class="text-gray-300 leading-relaxed mb-4">
+              A auditoria evidenciou que, embora a API utilize alguns controles de segurança corretos, há
+              <span class="text-red-400 font-semibold">falhas críticas</span> que permitem ataques reais, como
+              <span class="text-matrix">brute-force</span>, <span class="text-matrix">SQL Injection</span> e
+              <span class="text-matrix">exposições CORS</span>.
+            </p>
+            <div class="bg-red-900/30 border border-red-700 rounded p-4">
+              <p class="text-red-300 text-sm font-semibold">
+                A aplicação destas correções é prioritária para evitar riscos operacionais, legais e financeiros.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-8 pt-6 border-t border-gray-700 text-center">
+          <div class="bg-matrix/10 border border-matrix/30 rounded-lg p-4">
+            <p class="text-matrix font-mono text-sm mb-2">
+              Este relatório é confidencial
+            </p>
+            <p class="text-gray-400 text-xs">
+              Todos os direitos reservados à <strong class="text-white">SecREST</strong> – Segurança ofensiva e
+              auditoria profissional em APIs RESTful
+            </p>
+          </div>
+        </div>
+
+      </div>
+      <div class="text-center mt-12">
+        <div class="bg-gradient-to-r from-gray-900 to-black rounded-lg border border-gray-800 p-8">
+          <h4 class="text-2xl font-bold text-matrix mb-4 font-mono">Quer receber um relatório como este?</h4>
+          <p class="text-gray-300 mb-6 max-w-2xl mx-auto">
+            Nossos relatórios incluem análise completa, screenshots de PoCs, logs detalhados e
+            recomendações práticas para cada vulnerabilidade encontrada.
+          </p>
+          <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="forms.html"
+              class="inline-block bg-gradient-to-r from-green-500 to-green-600 text-black px-8 py-4 rounded font-bold hover:from-green-400 hover:to-green-500 transition-all transform hover:scale-105 font-mono scale-on-hover">
+              > SOLICITAR_AUDITORIA
+            </a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section id="orcamento" class="py-20 px-6 bg-black relative overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-r from-green-900/20 to-green-800/20"></div>
+    <div class="max-w-4xl mx-auto text-center relative z-10">
+      <div class="mb-8">
+        <h2 class="text-4xl font-bold mb-4">
+          <span class="text-white">Pronto para</span> <span class="text-matrix font-mono">[TESTAR]</span> <span
+            class="text-white">sua API?</span>
+        </h2>
+        <div class="w-24 h-1 bg-gradient-to-r from-green-500 to-green-600 mx-auto mb-6"></div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+        <div class="bg-gray-900 border border-gray-800 rounded-lg p-8 hover-glow transition-all duration-300">
+          <div
+            class="w-full h-32 bg-gray-800 rounded-lg flex items-center justify-center border-2 border-gray-700 mb-6">
+            <div class="text-center text-gray-600">
+              <svg class="w-12 h-12 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                  d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                  d="M15.91 11.672a.375.375 0 010 .656l-5.603 3.113a.375.375 0 01-.557-.328V8.887c0-.286.307-.466.557-.327l5.603 3.112z" />
+              </svg>
+              <p class="font-mono text-xs opacity-75">Free Analysis</p>
+            </div>
+          </div>
+          <h3 class="text-xl font-bold text-matrix mb-4 font-mono">free_diagnostic()</h3>
+          <p class="text-gray-300 mb-6">Análise inicial gratuita para identificar as principais vulnerabilidades da sua
+            API</p>
+          <div class="code-block p-3 rounded text-sm mb-4">
+            <span class="text-green-400">output</span>: <span
+              class="text-yellow-400">"vulnerability_summary.json"</span>
+          </div>
+        </div>
+
+        <div class="bg-gray-900 border border-matrix rounded-lg p-8 hover-glow transition-all duration-300 relative">
+          <div class="absolute top-2 right-2">
+            <span class="bg-matrix text-black px-2 py-1 rounded text-xs font-mono font-bold">RECOMENDADO</span>
+          </div>
+          <div
+            class="w-full h-32 bg-gray-800 rounded-lg flex items-center justify-center border-2 border-dashed border-matrix mb-6">
+            <div class="text-center text-matrix">
+              <svg class="w-12 h-12 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                  d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.623 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                <circle cx="12" cy="8" r="1" fill="currentColor" />
+                <circle cx="16" cy="12" r="0.5" fill="currentColor" />
+                <circle cx="8" cy="16" r="0.5" fill="currentColor" />
+              </svg>
+              <p class="font-mono text-xs opacity-75">Full Security Audit</p>
+            </div>
+          </div>
+          <h3 class="text-xl font-bold text-matrix mb-4 font-mono">full_penetration_test()</h3>
+          <p class="text-gray-300 mb-6">Pentest completo com metodologia OWASP e relatório executivo detalhado</p>
+          <div class="code-block p-3 rounded text-sm mb-4">
+            <span class="text-green-400">deliverables</span>: <span class="text-yellow-400">["report.pdf",
+              "fixes.py"]</span>
+          </div>
+        </div>
+      </div>
+
+      <p class="text-lg mb-8 max-w-2xl mx-auto text-gray-300 font-mono">
+        <span class="text-matrix">root@secrest:~$</span> ./request_audit.sh --target=your_api
+      </p>
+
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="mailto:contato@secrest.com?subject=Diagnóstico Gratuito"
+          class="inline-block bg-gradient-to-r from-green-500 to-green-600 text-black px-8 py-4 rounded font-bold hover:from-green-400 hover:to-green-500 transition-all transform hover:scale-105 font-mono scale-on-hover">
+          > DIAGNÓSTICO_GRATUITO
+        </a>
+        <a href="forms.html"
+          class="inline-block border-2 border-matrix text-matrix px-8 py-4 rounded font-bold hover:bg-green-500 hover:text-black transition-all font-mono scale-on-hover">
+          > AUDITORIA_COMPLETA
+        </a>
+      </div>
+
+      <div class="mt-8 p-4 bg-gray-900 border border-gray-800 rounded-lg inline-block">
+        <p class="text-sm text-gray-400 font-mono">
+          <span class="text-matrix">contato@secrest.com</span> |
+          <span class="text-matrix">+55 (35) 99999-9999</span>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="bg-black border-t border-gray-800 py-8 text-center">
+    <div class="max-w-4xl mx-auto px-6">
+      <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+        <div class="flex items-center space-x-2">
+          <img src="logo.png" alt="SecREST Logo" class="w-6 h-6 object-contain">
+          <span class="text-matrix font-mono font-bold">SecREST</span>
+        </div>
+
+        <div class="text-sm text-gray-500 font-mono">
+          <span>&copy; 2025 SecREST - Cybersecurity Consulting</span>
+        </div>
+
+        <div class="text-sm text-gray-500 font-mono">
+          <span class="text-matrix">root@secrest.com</span>
+        </div>
+      </div>
+
+      <div class="mt-6 pt-6 border-t border-gray-800">
+        <p class="text-xs text-gray-600 font-mono">
+          Ethical hacking services - Penetration testing as code
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const btnMenu = document.getElementById('btn-menu');
+    const mobileMenu = document.getElementById('mobile-menu');
+
+    btnMenu.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
+    });
+
+    setInterval(() => {
+      const cursor = document.querySelector('.terminal-cursor');
+      if (cursor) {
+        cursor.style.opacity = cursor.style.opacity === '0' ? '1' : '0';
+      }
+    }, 500);
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }
+      });
+    });
+  </script>
+</body>
+
+</html>
